@@ -6,7 +6,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import ssl
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any, Dict
 
@@ -66,6 +69,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Draft sales follow-up emails with an LLM")
     parser.add_argument("--input", type=str, help="Path to JSON input notes")
     parser.add_argument("--prompt-version", default="v3", choices=sorted(PROMPTS.keys()))
+    parser.add_argument(
+        "--provider",
+        default="openai",
+        choices=["openai", "minimax"],
+        help="LLM provider to use",
+    )
     parser.add_argument("--model", default="gpt-4.1-mini", help="Model name")
     parser.add_argument("--output", type=str, help="Optional output file path")
     return parser.parse_args()
@@ -95,7 +104,7 @@ def build_user_prompt(notes: Dict[str, Any]) -> str:
     )
 
 
-def run_generation(model: str, system_prompt: str, user_prompt: str) -> str:
+def run_openai_generation(model: str, system_prompt: str, user_prompt: str) -> str:
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
     response = client.responses.create(
@@ -110,21 +119,96 @@ def run_generation(model: str, system_prompt: str, user_prompt: str) -> str:
     return response.output_text.strip()
 
 
+def _extract_minimax_text(payload: Dict[str, Any]) -> str:
+    # Keep parsing permissive because providers can vary response schema by model/version.
+    reply = payload.get("reply")
+    if isinstance(reply, str) and reply.strip():
+        return reply.strip()
+
+    choices = payload.get("choices")
+    if isinstance(choices, list) and choices:
+        first = choices[0]
+        if isinstance(first, dict):
+            message = first.get("message")
+            if isinstance(message, dict):
+                content = message.get("content")
+                if isinstance(content, str) and content.strip():
+                    return content.strip()
+
+            text = first.get("text")
+            if isinstance(text, str) and text.strip():
+                return text.strip()
+
+    raise RuntimeError(f"Unexpected MiniMax response format: {json.dumps(payload, ensure_ascii=True)}")
+
+
+def run_minimax_generation(model: str, system_prompt: str, user_prompt: str) -> str:
+    api_key = os.environ.get("MINIMAX_API_KEY")
+    request_payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        "temperature": 0.2,
+    }
+    body = json.dumps(request_payload).encode("utf-8")
+
+    req = urllib.request.Request(
+        url="https://api.minimaxi.com/v1/text/chatcompletion_v2",
+        method="POST",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key or ''}",
+            "x-api-key": api_key or "",
+        },
+        data=body,
+    )
+
+    context = None
+    if os.environ.get("MINIMAX_INSECURE_TLS") == "1":
+        context = ssl._create_unverified_context()
+
+    try:
+        with urllib.request.urlopen(req, timeout=60, context=context) as resp:
+            raw = resp.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        error_body = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"MiniMax API HTTP {exc.code}: {error_body}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"MiniMax API request failed: {exc}") from exc
+
+    parsed = json.loads(raw)
+    return _extract_minimax_text(parsed)
+
+
+def run_generation(provider: str, model: str, system_prompt: str, user_prompt: str) -> str:
+    if provider == "openai":
+        return run_openai_generation(model, system_prompt, user_prompt)
+    if provider == "minimax":
+        return run_minimax_generation(model, system_prompt, user_prompt)
+    raise ValueError(f"Unsupported provider: {provider}")
+
+
 def main() -> int:
     args = parse_args()
 
-    if not os.environ.get("OPENAI_API_KEY"):
+    if args.provider == "openai" and not os.environ.get("OPENAI_API_KEY"):
         print("ERROR: OPENAI_API_KEY is not set.", file=sys.stderr)
+        return 1
+    if args.provider == "minimax" and not os.environ.get("MINIMAX_API_KEY"):
+        print("ERROR: MINIMAX_API_KEY is not set.", file=sys.stderr)
         return 1
 
     notes = load_input(args.input)
     system_prompt = PROMPTS[args.prompt_version]
     user_prompt = build_user_prompt(notes)
 
-    output_text = run_generation(args.model, system_prompt, user_prompt)
+    output_text = run_generation(args.provider, args.model, system_prompt, user_prompt)
 
     structured = (
         "=== CONFIG ===\n"
+        f"provider: {args.provider}\n"
         f"model: {args.model}\n"
         f"prompt_version: {args.prompt_version}\n\n"
         "=== INPUT NOTES ===\n"

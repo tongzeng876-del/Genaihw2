@@ -21,15 +21,18 @@ This project prototypes an LLM-assisted workflow for drafting sales follow-up em
 2. Install dependency:
    - `pip install openai`
 3. Set environment variable:
-   - `export OPENAI_API_KEY="your_api_key_here"`
+   - OpenAI: `export OPENAI_API_KEY="your_api_key_here"`
+   - MiniMax: `export MINIMAX_API_KEY="your_api_key_here"`
 4. Run:
-   - `python app.py --input examples/input_normal.json --prompt-version v3`
+   - OpenAI: `python app.py --provider openai --input examples/input_normal.json --prompt-version v3`
+   - MiniMax: `python app.py --provider minimax --model MiniMax-M2.5 --input examples/input_normal.json --prompt-version v3`
 
 If no `--input` is passed, the script runs built-in sample data.
 
 ## CLI Options
 - `--input`: path to JSON file containing sales call notes
 - `--prompt-version`: `v1`, `v2`, or `v3` (default: `v3`)
+- `--provider`: `openai` or `minimax` (default: `openai`)
 - `--model`: model name (default: `gpt-4.1-mini`)
 - `--output`: optional output file path
 
