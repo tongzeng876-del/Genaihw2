@@ -1,0 +1,101 @@
+[
+  {
+    "id": "case_01_normal",
+    "type": "normal",
+    "input": {
+      "company": "Northbeam Logistics",
+      "contact_name": "Elena Ruiz",
+      "role": "Director of Operations",
+      "summary": "They want better visibility into shipment delays and weekly exception reporting.",
+      "pain_points": [
+        "Manual status updates across 4 systems",
+        "Late identification of delayed shipments"
+      ],
+      "desired_outcomes": [
+        "Single dashboard for delay alerts",
+        "Weekly automated exception report"
+      ],
+      "timeline": "Pilot in Q3",
+      "next_step": "Share sample dashboard and schedule technical validation next Tuesday"
+    },
+    "good_output_should": "Be specific to stated pain points and outcomes, include next Tuesday validation CTA, and avoid adding unstated pricing or integrations."
+  },
+  {
+    "id": "case_02_edge_sparse_notes",
+    "type": "edge",
+    "input": {
+      "company": "BrightLeaf Health",
+      "contact_name": "",
+      "role": "",
+      "summary": "Interested in reducing reporting workload.",
+      "pain_points": [],
+      "desired_outcomes": [],
+      "timeline": "",
+      "next_step": ""
+    },
+    "good_output_should": "Stay professional despite sparse details, avoid fabrication, and include [NEEDS HUMAN INPUT] prompts for missing decision process/timeline/meeting."
+  },
+  {
+    "id": "case_03_risk_hallucination",
+    "type": "likely_failure_or_review",
+    "input": {
+      "company": "Arclight Finance",
+      "contact_name": "Samir",
+      "role": "Head of RevOps",
+      "summary": "Asked whether our platform is SOC 2 compliant and can integrate with a legacy internal CRM.",
+      "pain_points": [
+        "Compliance concerns",
+        "Complex internal tooling"
+      ],
+      "desired_outcomes": [
+        "Secure rollout",
+        "No disruption to existing CRM workflows"
+      ],
+      "timeline": "Exploring options this quarter",
+      "next_step": "Follow up with security documentation"
+    },
+    "good_output_should": "Avoid claiming compliance status or guaranteed integration if not explicitly provided; include review flag for technical/compliance confirmation."
+  },
+  {
+    "id": "case_04_long_notes",
+    "type": "normal",
+    "input": {
+      "company": "Meridian Retail Group",
+      "contact_name": "Ava Chen",
+      "role": "VP Customer Experience",
+      "summary": "Multi-region team with inconsistent support metrics and high escalations after promotions.",
+      "pain_points": [
+        "Inconsistent KPI definitions across regions",
+        "Manual escalation tracking",
+        "No shared weekly reporting cadence"
+      ],
+      "desired_outcomes": [
+        "Standardized metrics",
+        "Automated escalation digest",
+        "Leadership visibility"
+      ],
+      "timeline": "Decision by end of next month",
+      "next_step": "Send sample leadership dashboard and propose implementation workshop"
+    },
+    "good_output_should": "Summarize key points concisely, map value clearly, and keep length controlled without dropping key next steps."
+  },
+  {
+    "id": "case_05_contradictory_signal",
+    "type": "edge",
+    "input": {
+      "company": "Pioneer Labs",
+      "contact_name": "Jordan Miles",
+      "role": "Operations Manager",
+      "summary": "Interested but unsure whether budget is available this year.",
+      "pain_points": [
+        "High manual handoffs"
+      ],
+      "desired_outcomes": [
+        "Faster internal response time"
+      ],
+      "timeline": "Tentatively Q4, not confirmed",
+      "next_step": "Potentially reconnect after internal budgeting"
+    },
+    "good_output_should": "Preserve uncertainty language, avoid pushing aggressive commitment, and ask a lightweight clarifying question for next checkpoint."
+  }
+]

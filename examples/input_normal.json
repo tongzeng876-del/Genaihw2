@@ -1,0 +1,16 @@
+{
+  "company": "Northbeam Logistics",
+  "contact_name": "Elena Ruiz",
+  "role": "Director of Operations",
+  "summary": "They want better visibility into shipment delays and weekly exception reporting.",
+  "pain_points": [
+    "Manual status updates across 4 systems",
+    "Late identification of delayed shipments"
+  ],
+  "desired_outcomes": [
+    "Single dashboard for delay alerts",
+    "Weekly automated exception report"
+  ],
+  "timeline": "Pilot in Q3",
+  "next_step": "Share sample dashboard and schedule technical validation next Tuesday"
+}
