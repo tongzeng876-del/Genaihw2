@@ -40,3 +40,6 @@ If no `--input` is passed, the script runs built-in sample data.
 - Prompt versions are fixed in `app.py` and documented in `prompts.md`.
 - Evaluation inputs are fixed in `eval_set.json`.
 - Outputs are printed in structured sections and can also be saved to file.
+
+## youtube link
+- https://youtu.be/TQ8BeRrJxsE
